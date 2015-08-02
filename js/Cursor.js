@@ -32,6 +32,7 @@ Cursor.prototype.update = function() {
     //Meow - Puuuurfect
     
     //https://www.youtube.com/watch?v=dQw4w9WgXcQ
+    // ^ Best song ever ^
 
     if(this.manager.getPlantAt(this.props.column, this.props.row) != null) {
         this.sprite.animations.play('red', 2, true);

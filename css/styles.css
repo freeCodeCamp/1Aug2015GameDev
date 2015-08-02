@@ -10,14 +10,14 @@ body {
 
 /* Contains the canvas element */
 #game {
-    padding: 0;
     margin: auto;
+    padding: 0;
     display: block;
-    width: 800px;
-    height: 600px;
     position: absolute;
-    top: 0;
-    bottom: 0;
+    width: 800px;
+    height: 576px;
     left: 0;
     right: 0;
+    top: 0;
+    bottom: 0;
 }

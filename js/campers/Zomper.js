@@ -14,6 +14,7 @@ function Zomper(manager, row, sprite_y) {
 	this.sprite.smoothed = false;
 	this.sprite.width = 64;
 	this.sprite.height = 64;
+	this.dying = false;
 	
 	this.sprite.animations.add('idle', ['zombie_1', 'zombie_2'], 2, true, false);
 	this.sprite.animations.add('hurt', ['zombie_0'], 2, true, false);
@@ -37,16 +38,25 @@ Zomper.prototype.hit = function(damage) {
 	this.sprite.body.velocity.x += 175;
 	
 	if (this.props.health <= 0) {
-		this.props.die = true;
+		this.dying = true;
+		this.sprite.body.acceleration = new Phaser.Point(0, 150);
+		this.sprite.body.velocity.y = -50;
+		this.sprite.alpha = 1;
 	}
 };
 
 Zomper.prototype.update = function() {
 
-	var plant = this.manager.getClosestPlant(this.sprite.x);
+	var plant = this.manager.getClosestPlant(this.props.row, this.sprite.x);
 
+	//If the zomper is dead, but hasn't fuly faded out yet.
+	if(this.dying) {
+		this.sprite.alpha -= 0.01;
+		if(this.sprite.alpha <= 0)
+			this.props.die = true;
+	}
 	// if theres a plant in this row and its 10 pixels away
-	if(plant != null && 
+	else if(plant != null && 
 		Phaser.Math.difference(plant.sprite.x, this.sprite.x) <= this.sprite.width + 32) {
 
 		var time_since = game.time.now - this.props.cooldown_timer;

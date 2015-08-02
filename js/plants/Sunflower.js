@@ -1,27 +1,21 @@
-function Sunflower(manager, column, row, sprite_x, sprite_y) {
+Sunflower.prototype.init = function (){
+	
+	this.props = new Props({
+		cooldown: (Math.random() * 5000) + 5000
+	});
 
-	this.manager = manager;
-
-	this.column = column;
-	this.row = row;
-
-	this.last_action_time = 0;
-
-	this.sprite = game.add.sprite(sprite_x, sprite_y, 'plants');
-	this.sprite.smoothed = false;
-	this.sprite.width = 64;
-	this.sprite.height = 64;
 	this.sprite.animations.add('idle', ['sunflower_3', 'sunflower_0'], 2, true, false);
-	this.sprite.animations.play('idle', 15, false);
+	this.sprite.animations.play('idle', 2, true);
 }
 
 Sunflower.prototype.update = function() {
+        
+	var time_since = game.time.now - this.props.cooldown_timer;
 
-	var time_since = game.time.now - this.last_action_time;
-
-	if(time_since >= 2000) {
-		this.last_action_time = game.time.now;
-		console.log('TODO: spawn sun');
+	if (time_since >= this.props.cooldown) {
+		this.next_sun_spawn_ms = (Math.random() * 5000) + 5000;
+		this.props.cooldown_timer = game.time.now;
+		this.manager.spawnSun(this.props.column, this.props.row);
 	}
 
 };
