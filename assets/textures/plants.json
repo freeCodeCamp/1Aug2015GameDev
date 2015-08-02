@@ -1,19 +1,20 @@
 {
 	"frames": {
-		"peashooter_0": {
-			"frame": {"x": 0, "y": 16, "w": 16, "h": 16}
-		},
-		"peashooter_1":{
-			"frame": {"x": 16, "y": 16, "w": 16, "h": 16}
-		},
-		"peashooter_2":{
-			"frame": {"x": 32, "y": 16, "w": 16, "h": 16}
-		},
-		"peashooter_3":{
-			"frame": {"x": 48, "y": 16, "w": 16, "h": 16}
-		},
-		"pea":{
-			"frame": {"x": 0, "y": 32, "w": 16, "h": 16}
-		}
+		"peashooter_0": {"frame": {"x": 0, 	"y": 16, "w": 16, "h": 16}},
+		"peashooter_1": {"frame": {"x": 16, "y": 16, "w": 16, "h": 16}},
+		"peashooter_2": {"frame": {"x": 32, "y": 16, "w": 16, "h": 16}},
+		"peashooter_3": {"frame": {"x": 48, "y": 16, "w": 16, "h": 16}},
+		"nut_0": 		{"frame": {"x": 0, 	"y": 0,  "w": 16, "h": 16}},
+        "nut_1": 		{"frame": {"x": 16, "y": 0,  "w": 16, "h": 16}},
+        "nut_2": 		{"frame": {"x": 32, "y": 0,  "w": 16, "h": 16}},
+        "nut_3": 		{"frame": {"x": 48, "y": 0,  "w": 16, "h": 16}},
+        "nut_4": 		{"frame": {"x": 0, 	"y": 16, "w": 16, "h": 16}},
+        "nut_5": 		{"frame": {"x": 16, "y": 16, "w": 16, "h": 16}},
+        "nut_6": 		{"frame": {"x": 32, "y": 16, "w": 16, "h": 16}},
+		"pea":			{"frame": {"x": 0, 	"y": 32, "w": 16, "h": 16}},
+		"sunflower_0":  {"frame": {"x": 0, 	"y": 0,  "w": 16, "h": 16}},
+		"sunflower_1":  {"frame": {"x": 16, "y": 0,  "w": 16, "h": 16}},
+		"sunflower_2":  {"frame": {"x": 32, "y": 0,  "w": 16, "h": 16}},
+		"sunflower_3":  {"frame": {"x": 48, "y": 0,  "w": 16, "h": 16}}
 	}
 }

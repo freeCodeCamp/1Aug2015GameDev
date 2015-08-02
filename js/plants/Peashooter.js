@@ -1,10 +1,15 @@
 function Peashooter(manager, column, row, sprite_x, sprite_y) {
 
 	this.manager = manager;
-	this.column = column;
-	this.row = row;
-	this.time_since_cooldown = 0;
-	this.cooldown = 10;
+	
+	this.props = new Props({
+		column: column,
+		row: row,
+		cooldown: 1000,
+		damage: 1,
+		speed: 100,
+		health: 2
+	});
 
 	this.sprite = game.add.sprite(sprite_x, sprite_y, 'plants');
 	this.sprite.smoothed = false;
@@ -23,21 +28,21 @@ Peashooter.prototype.hit = function(damage) {
 
 Peashooter.prototype.update = function() {
 
-	var time_since = game.time.now - this.time_since_cooldown;
+	var time_since = game.time.now - this.props.cooldown_timer;
 
-	if(this.manager.campersInRow(this.row) > 0) {
+	if(this.manager.campersInRow(this.props.row) > 0) {
 
 		var currentAnim = this.sprite.animations.currentAnim;
 
-		if(currentAnim.name == 'idle' && time_since >= this.cooldown) {
+		if(currentAnim.name == 'idle' && time_since >= this.props.cooldown) {
 			this.sprite.animations.play('shoot', 4, false);
 		}
 		else if(currentAnim.isFinished && currentAnim.name == 'shoot'){
-			this.manager.shootPea(this.column, this.row, 1, 200);
+			this.manager.shootPea(this.props.column, this.props.row, 1, 200);
 			this.sprite.animations.play('recoil', 2, false);
 		}
 		else if(currentAnim.isFinished && currentAnim.name == 'recoil'){
-			this.time_since_cooldown = game.time.now;
+			this.props.cooldown_timer = game.time.now;
 			this.sprite.animations.play('idle', 2, true);
 		}
 	}

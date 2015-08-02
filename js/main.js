@@ -15,7 +15,8 @@ function GameState() {
 		plants: [],
 		campers: [],
 		peas: [],
-		last_spawn_time: 0,
+		spawn_timer: 0,
+		cursor: null,
 		setup: function(offsets) {
 			this.offsets = offsets;
 
@@ -28,6 +29,17 @@ function GameState() {
 					);
 				}
 			}
+			
+			this.cursor = new Cursor(
+				this, 0, 0,
+				(64 + this.offsets.margin_x) * 0 + this.offsets.world_x,
+				(64 + this.offsets.margin_y) * 0 + this.offsets.world_y
+			);
+			
+			game.add.sprite(
+				(64
+				 )
+			);
 		},
 		getClosestPlant: function(x) {
 			var closest = null;
@@ -41,7 +53,7 @@ function GameState() {
 		campersInRow: function(row) {
 			var count = 0;
 			for(var i = 0; i < this.campers.length; i++) {
-				if(this.campers[i].row == row) {
+				if(this.campers[i].props.row == row) {
 					count++;
 				}
 			}
@@ -49,7 +61,7 @@ function GameState() {
 		},
 		getPlantAt: function(column, row) {
 			for(var i = 0; i < this.plants.length; i++) {
-				if(this.plants[i].column == column && this.plants[i].row == row) {
+				if(this.plants[i].props.column == column && this.plants[i].props.row == row) {
 					return this.plants[i];
 				}
 			}
@@ -58,7 +70,13 @@ function GameState() {
 		addPlant: function(column, row, type) {
 			if(this.getPlantAt(column, row) == null) {
 
-				this.plants.push(new Peashooter(
+				var mappedClass = Peashooter; // default plant
+				switch (type) {
+					case 'basic': mappedClass = Peashooter; break;
+					case 'sunflower': mappedClass = Sunflower; break;
+				}
+
+				this.plants.push(new mappedClass(
 					this, column, row,
 					(64 + this.offsets.margin_x) * column + this.offsets.world_x - this.offsets.spot_x,
 					(64 + this.offsets.margin_y) * row + this.offsets.world_y - this.offsets.spot_y
@@ -92,6 +110,8 @@ GameState.prototype = {
 	preload: function() {
 		game.load.image('background', 'assets/textures/background.png');
 		game.load.image('spot', 'assets/textures/spot.png');
+		game.load.image('cloud', 'assets/textures/cloud.png');
+		game.load.atlasJSONHash('cursors', 'assets/textures/cursor.png', 'assets/textures/cursor.json');
 		game.load.atlasJSONHash('zombie', 'assets/textures/zombie.png', 'assets/textures/zombie.json');
 		game.load.atlasJSONHash('plants', 'assets/textures/plants.png', 'assets/textures/plants.json');
 	},
@@ -103,9 +123,14 @@ GameState.prototype = {
 
 		game.stage.backgroundColor = '#FFFFFF';
 
+		game.add.text(0, 0, 'Controls - Arrow keys to move cursor', {
+			'font': '18px Arial',
+			'fillStyle': 'black'
+		})
+
 		this.manager.setup({
 			world_x: 0,
-			world_y: 248,
+			world_y: 186,
 			margin_x: 16,
 			margin_y: 0,
 			spot_x: 0,
@@ -120,13 +145,13 @@ GameState.prototype = {
 	},
 	update: function() {
 		
-		var last_spawn_time = game.time.now - this.manager.last_spawn_time;
+		var spawn_timer_difference = game.time.now - this.manager.spawn_timer;
 
 		// spawn a new camper every 2 seconds if theirs less than 10 in the game
-		if(this.manager.campers.length < 10 && last_spawn_time >= 2000) {
+		if(this.manager.campers.length < 10 && spawn_timer_difference >= 2000) {
 			var row = Math.floor(Math.random() * (this.manager.height - 1));
 			this.manager.addCamper(row, 'basic');
-			this.manager.last_spawn_time = game.time.now;
+			this.manager.spawn_timer = game.time.now;
 		}
 
 		// update all the plants
@@ -140,9 +165,14 @@ GameState.prototype = {
 			
 			camper.update();
 			
-			if(camper.die) {
+			if(camper.props.die) {
 				camper.sprite.destroy();
 				this.manager.campers.splice(i, 1);
+			}
+			
+			var c = 0; while(c < this.manager.campers.length) {
+				//game.physics.arcade.collide(camper.sprite, this.manager.campers[c].sprite);
+				c++;
 			}
 			
 			i++;
@@ -152,7 +182,7 @@ GameState.prototype = {
 		var i = 0; while(i < this.manager.peas.length) {
 			var pea = this.manager.peas[i];
 			
-			if(pea.die) {
+			if(pea.props.die) {
 				pea.sprite.destroy();
 				this.manager.peas.splice(i, 1);
 			}
@@ -168,13 +198,16 @@ GameState.prototype = {
 				var camper = this.manager.campers[c];
 				
 				if(game.physics.arcade.overlap(pea.sprite, camper.sprite)) {
-					pea.die = true;
-					camper.hit(pea.damage);
+					pea.props.die = true;
+					camper.hit(pea.props.damage);
 				}
 			}
 			
 			i++;
 		}
+		
+		this.manager.cursor.update();
+		
 	},
 	render: function() {
 		//for(var i = 0; i < this.manager.campers.length; i++) game.debug.body(this.manager.campers[i].sprite);

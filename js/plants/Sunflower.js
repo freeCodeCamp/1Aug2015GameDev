@@ -11,7 +11,7 @@ function Sunflower(manager, column, row, sprite_x, sprite_y) {
 	this.sprite.smoothed = false;
 	this.sprite.width = 64;
 	this.sprite.height = 64;
-	this.sprite.animations.add('idle', [0], 15, false);
+	this.sprite.animations.add('idle', ['sunflower_3', 'sunflower_0'], 2, true, false);
 	this.sprite.animations.play('idle', 15, false);
 }
 
@@ -21,7 +21,7 @@ Sunflower.prototype.update = function() {
 
 	if(time_since >= 2000) {
 		this.last_action_time = game.time.now;
-		console.log('SHOOTING!');
+		console.log('TODO: spawn sun');
 	}
 
 };

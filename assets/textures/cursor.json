@@ -1,0 +1,6 @@
+{
+    "frames": {
+        "cursor_green": {"frame": {"x": 0, "y": 0, "w": 16, "h": 16}},
+        "cursor_red":   {"frame": {"x": 16, "y": 0, "w": 16, "h": 16}}
+    }
+}
