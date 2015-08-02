@@ -1,11 +1,17 @@
-function Pea(manager, column, row) {
+function Pea(manager, sprite_x, sprite_y, damage, speed) {
 	this.manager = manager;
-	this.column = column;
-	this.row = row;
+	this.damage = damage;
+	
+	this.sprite = game.add.sprite(sprite_x, sprite_y, 'plants');
+	this.sprite.width = 64;
+	this.sprite.height = 64;
+	
+	this.sprite.animations.add('idle', ['pea'], 2, true, false);
+	this.sprite.animations.play('idle', 2, true);
+	
+	game.physics.arcade.enable(this.sprite);
+	this.sprite.body.velocity.x = speed;
+	this.sprite.body.width = 16;
+	
+	this.sprite.anchor.setTo(0.5, 0);
 }
-
-Pea.prototype.update = function() {
-
-	this.sprite.x += this.movement_speed * game.time.elapsed;
-
-};

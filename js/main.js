@@ -1,4 +1,4 @@
-var game = new Phaser.Game(800, 600, Phaser.Auto, 'game');
+var game = new Phaser.Game(800, 576, Phaser.Auto, 'game');
 
 window.onload = function() {
 	game.state.add('gameState', new GameState());
@@ -7,7 +7,6 @@ window.onload = function() {
 
 function GameState() {
 	this.background = null;
-	this.mario = null;
 
 	this.manager = {
 		offsets: null,
@@ -16,17 +15,7 @@ function GameState() {
 		plants: [],
 		campers: [],
 		peas: [],
-		types: {
-			basic : {
-
-				animations: {
-					idle: [0]
-				},
-				update: function() {
-
-				}
-			}
-		},
+		last_spawn_time: 0,
 		setup: function(offsets) {
 			this.offsets = offsets;
 
@@ -39,6 +28,15 @@ function GameState() {
 					);
 				}
 			}
+		},
+		getClosestPlant: function(x) {
+			var closest = null;
+			for(var i = 0; i < this.plants.length; i++) {
+				if(closest == null || this.plants[i].sprite.x > closest.sprite.x) {
+					closest = this.plants[i];
+				}
+			}
+			return closest;
 		},
 		campersInRow: function(row) {
 			var count = 0;
@@ -77,10 +75,13 @@ function GameState() {
 				this, row, (64 + this.offsets.margin_y) * row + this.offsets.world_y - this.offsets.spot_y
 			));
 		},
-		addPea: function(column, row) {
+		shootPea: function(column, row, damage, speed) {
 			this.peas.push(new Pea(
+				this,
 				(64 + this.offsets.margin_x) * column + this.offsets.world_x - this.offsets.spot_x,
-				(64 + this.offsets.margin_y) * row + this.offsets.world_y - this.offsets.spot_y
+				(64 + this.offsets.margin_y) * row + this.offsets.world_y - this.offsets.spot_y,
+				damage,
+				speed
 			));
 		}
 	};
@@ -90,43 +91,93 @@ function GameState() {
 GameState.prototype = {
 	preload: function() {
 		game.load.image('background', 'assets/textures/background.png');
-		game.load.image('zombie', 'assets/textures/zombie_scaled.png');
 		game.load.image('spot', 'assets/textures/spot.png');
+		game.load.atlasJSONHash('zombie', 'assets/textures/zombie.png', 'assets/textures/zombie.json');
 		game.load.atlasJSONHash('plants', 'assets/textures/plants.png', 'assets/textures/plants.json');
 	},
 	create: function() {
+		
+		game.physics.startSystem(Phaser.Physics.ARCADE);
+		
 		this.background = game.add.sprite(0, 0, 'background');
 
 		game.stage.backgroundColor = '#FFFFFF';
-		this.mario = game.add.sprite(0, 0, 'zombie');
-		this.mario.width = 64;
-		this.mario.height = 64;
 
 		this.manager.setup({
 			world_x: 0,
-			world_y: 224,
+			world_y: 248,
 			margin_x: 16,
 			margin_y: 0,
 			spot_x: 0,
-			spot_y: 16
+			spot_y: 0
 		});
+		
 		this.manager.addPlant(0, 0, 'basic');
-		this.manager.addPlant(1, 1, 'basic');
-		this.manager.addCamper(1, 'basic');
-
+		this.manager.addPlant(0, 1, 'basic');
+		this.manager.addPlant(0, 2, 'basic');
+		this.manager.addPlant(0, 3, 'basic');
+		this.manager.addPlant(0, 4, 'basic');
 	},
 	update: function() {
+		
+		var last_spawn_time = game.time.now - this.manager.last_spawn_time;
 
-		//if(this.campers.length < 10) {
-		//}
+		// spawn a new camper every 2 seconds if theirs less than 10 in the game
+		if(this.manager.campers.length < 10 && last_spawn_time >= 2000) {
+			var row = Math.floor(Math.random() * (this.manager.height - 1));
+			this.manager.addCamper(row, 'basic');
+			this.manager.last_spawn_time = game.time.now;
+		}
 
+		// update all the plants
 		for(var i = 0; i < this.manager.plants.length; i++) {
 			this.manager.plants[i].update();
 		}
 
-		for(var i = 0; i < this.manager.campers.length; i++) {
-			this.manager.campers[i].update();
+		// clean up any campers who have died
+		var i = 0; while(i < this.manager.campers.length) {
+			var camper = this.manager.campers[i];
+			
+			camper.update();
+			
+			if(camper.die) {
+				camper.sprite.destroy();
+				this.manager.campers.splice(i, 1);
+			}
+			
+			i++;
 		}
-
+		
+		// clean up any peas that have died
+		var i = 0; while(i < this.manager.peas.length) {
+			var pea = this.manager.peas[i];
+			
+			if(pea.die) {
+				pea.sprite.destroy();
+				this.manager.peas.splice(i, 1);
+			}
+			
+			i++;
+		}
+		
+		// check collisions between peas and campers
+		var i = 0; while(i < this.manager.peas.length) {
+			var pea = this.manager.peas[i];
+			
+			for(var c = 0; c < this.manager.campers.length; c++) {
+				var camper = this.manager.campers[c];
+				
+				if(game.physics.arcade.overlap(pea.sprite, camper.sprite)) {
+					pea.die = true;
+					camper.hit(pea.damage);
+				}
+			}
+			
+			i++;
+		}
+	},
+	render: function() {
+		//for(var i = 0; i < this.manager.campers.length; i++) game.debug.body(this.manager.campers[i].sprite);
+		//for(var i = 0; i < this.manager.peas.length; i++) game.debug.body(this.manager.peas[i].sprite);
 	}
 };
