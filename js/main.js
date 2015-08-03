@@ -1,4 +1,4 @@
-var game = new Phaser.Game(800, 576, Phaser.Auto, 'game');
+var game = new Phaser.Game(800, 576, Phaser.AUTO, 'game');
 
 window.onload = function() {
 	game.state.add('gameState', new GameState());
@@ -105,8 +105,8 @@ function GameState() {
 			}
 		},
 		addPlantAtMouse: function(type) {
-			var mouse_x = game.input.mousePointer.x - this.offsets.world_x, 
-        		mouse_y = game.input.mousePointer.y - this.offsets.world_y;
+			var mouse_x = game.input.activePointer.x - this.offsets.world_x, 
+        		mouse_y = game.input.activePointer.y - this.offsets.world_y;
     
 		    var column = Math.floor(mouse_x / (64 + this.offsets.margin_x));
 		    var row    = Math.floor(mouse_y / (64 + this.offsets.margin_y));

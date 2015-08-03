@@ -32,6 +32,7 @@ function Gui(state) {
 		var placeholder_sprite = game.add.sprite(64 * i + 115, 60, 'plants');
 		placeholder_sprite.width = 64;
 		placeholder_sprite.height = 64;
+		placeholder_sprite.smoothed = false;
 		placeholder_sprite.animations.add('idle', [plant + '_0'], 2, true, false);
 		placeholder_sprite.animations.play('idle', 2, true);
 		
@@ -39,6 +40,7 @@ function Gui(state) {
 		
 		sprite.width = 64;
 		sprite.height = 64;
+		sprite.smoothed = false;
 		sprite.inputEnabled = true;
 		sprite.input.enableDrag();
 		
