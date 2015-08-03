@@ -62,7 +62,7 @@ function Gui(state) {
 		i++;
 	});
 	
-	this.sunText = game.add.text(this.sun.x - 2 + this.sun.width / 2, this.sun.y + 32 + this.sun.height / 2, '#FontFixBecauseExternalFontsDontWorkWellWithPhaser', {
+	this.sunText = game.add.text(this.sun.x - 2 + this.sun.width / 2, this.sun.y + 48 + this.sun.height / 2, '#FontFixBecauseExternalFontsDontWorkWellWithPhaser', {
 		font: '20px Arial',
 		fillStyle: 'black',
 		align: 'center'

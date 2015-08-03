@@ -19,3 +19,9 @@ function Pea(manager, sprite_x, sprite_y, damage, speed) {
 	
 	this.sprite.anchor.setTo(0.5, 0);
 }
+
+Pea.prototype.update = function() {
+	if(this.sprite.x > game.width) {
+		this.props.die = true;
+	}
+};

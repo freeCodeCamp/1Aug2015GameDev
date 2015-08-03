@@ -21,8 +21,8 @@ Cursor.prototype.update = function() {
     this.sprite.bringToTop();
     
     var keyboard = game.input.keyboard;
-    var mouse_x = game.input.mousePointer.x - this.manager.offsets.world_x, 
-        mouse_y = game.input.mousePointer.y - this.manager.offsets.world_y;
+    var mouse_x = game.input.activePointer.x - this.manager.offsets.world_x, 
+        mouse_y = game.input.activePointer.y - this.manager.offsets.world_y;
     
     this.props.column = Math.floor(mouse_x / (64 + this.manager.offsets.margin_x));
     this.props.column = Math.max(Math.min(this.props.column, this.manager.width - 1), 0);
@@ -34,8 +34,7 @@ Cursor.prototype.update = function() {
     //https://www.youtube.com/watch?v=dQw4w9WgXcQ
     // ^ Best song ever ^
 
-    this.sprite.visible = 
-        game.input.mousePointer.leftButton.isDown && this.manager.gui.plant_selected;
+    this.sprite.visible = this.manager.gui.plant_selected;
 
     if(this.manager.getPlantAt(this.props.column, this.props.row) != null) {
         this.sprite.animations.play('red', 2, true);

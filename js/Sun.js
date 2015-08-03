@@ -1,5 +1,5 @@
-function Sun(manager, sprite_x, sprite_y) {
-	this.manager = manager;
+function Sun(state, sprite_x, sprite_y) {
+	this.manager = state.manager;
 	
 	this.sprite = game.add.sprite(sprite_x, sprite_y, 'plants');
 	this.sprite.width = 64;
@@ -10,6 +10,8 @@ function Sun(manager, sprite_x, sprite_y) {
 	    cooldown: 1000
 	});
 	
+	this.props.cooldown_timer = game.time.now;
+	
 	this.collecting = false;
 	
 	game.physics.arcade.enable(this.sprite);
@@ -19,6 +21,19 @@ function Sun(manager, sprite_x, sprite_y) {
 	
 	this.sprite.animations.add('idle', ['sun'], 2, true, false);
 	this.sprite.animations.play('idle', 2, true);
+	
+	this.sprite.inputEnabled = true;
+		
+    //If the mouse button has been pressed in the last 50ms
+    //We're gonna check if this sun got clicked on
+    var self = this;
+	this.sprite.events.onInputDown.add(function(){
+	    if(game.input.activePointer.duration < 50) {
+	        self.collecting = true;
+            self.manager.money++;
+            self.manager.gui.sunText.text = self.manager.money.toString();
+	    }
+	}, state);
 }
 
 Sun.prototype.update = function() {
@@ -29,23 +44,9 @@ Sun.prototype.update = function() {
     if(!this.collecting) {
         //Stop moving the sun after about a second
         if(time_since >= this.props.cooldown) {
-            this.sprite.body.velocity.x=0;
-            this.sprite.body.velocity.y=0;
+            this.sprite.body.velocity.x = 0;
+            this.sprite.body.velocity.y = 0;
             this.sprite.body.acceleration = new Phaser.Point(0,0);
-        }
-        
-        var mouseButton = game.input.activePointer.leftButton;
-        var mouse_x = game.input.mousePointer.x; 
-        var mouse_y = game.input.mousePointer.y;
-        
-        //If the mouse button has been pressed in the last 50ms
-        //We're gonna check if this sun got clicked on
-        if(mouseButton.isDown && mouseButton.duration < 50) {
-            if(this.sprite.x<mouse_x && this.sprite.x+this.sprite.width>mouse_x && this.sprite.y<mouse_y && this.sprite.y+this.sprite.height>mouse_y) {
-                this.collecting = true;
-                this.manager.money++;
-                this.manager.gui.sunText.text = this.manager.money.toString();
-            }
         }
     }
     else {

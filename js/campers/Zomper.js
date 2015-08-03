@@ -6,11 +6,11 @@ function Zomper(manager, row, sprite_y) {
 		row: row,
 		cooldown: 1000,
 		damage: 1,
-		speed: 100,
+		speed: 75,
 		health: 2
 	});
 
-	this.sprite = game.add.sprite(800, sprite_y, 'zombie');
+	this.sprite = game.add.sprite(game.width + 32, sprite_y, 'zombie');
 	this.sprite.smoothed = false;
 	this.sprite.width = 64;
 	this.sprite.height = 64;
@@ -46,6 +46,12 @@ Zomper.prototype.hit = function(damage) {
 };
 
 Zomper.prototype.update = function() {
+
+	// this means that they are completely off to the left of the screen
+	if(this.sprite.x < -this.sprite.width) {
+		this.manager.health -= 1;
+		this.props.die = true;
+	}
 
 	var plant = this.manager.getClosestPlant(this.props.row, this.sprite.x);
 

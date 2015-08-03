@@ -8,6 +8,7 @@ window.onload = function() {
 function GameState() {
 	this.background = null;
 
+	var state = this;
 	this.manager = {
 		offsets: null,
 		width: 10,
@@ -18,6 +19,7 @@ function GameState() {
 		clouds: [],
 		suns: [],
 		spawn_timer: 0,
+		health: 3,
 		money: 0,
 		gui: null,
 		cursor: null,
@@ -138,7 +140,7 @@ function GameState() {
 		},
 		spawnSun: function (column, row) {
 			this.suns.push(new Sun(
-				this,
+				state,
 				(64 + this.offsets.margin_x) * column + this.offsets.world_x - this.offsets.spot_x,
 				(64 + this.offsets.margin_y) * row + this.offsets.world_y - this.offsets.spot_y
 			));
@@ -192,11 +194,8 @@ GameState.prototype = {
 		});
 		
 		/*for(var i = 0; i < this.manager.height; i++) {
-			this.manager.addPlant(0, i, 'peashooter');
-			this.manager.addPlant(1, i, 'peashooter');
-			this.manager.addPlant(2, i, 'peashooter');
-			this.manager.addPlant(3, i, 'nut');
-			this.manager.addPlant(4, i, 'nut');
+			for(var ii = 0; ii < 8; ii++)
+				this.manager.addPlant(ii, i, 'sunflower');
 		}*/
 		
 		this.manager.gui = new Gui(this);
@@ -211,7 +210,7 @@ GameState.prototype = {
 		
 		// spawn a new camper every 2 seconds if theirs less than 10 in the game
 		var spawn_timer_difference = game.time.now - manager.spawn_timer;
-		if(manager.campers.length < 10 && spawn_timer_difference >= 100) {
+		if(manager.campers.length < 10 && spawn_timer_difference >= 2000) {
 			var row = Math.floor(Math.random() * manager.height);
 			manager.addCamper(row, 'basic');
 			manager.spawn_timer = game.time.now;
@@ -233,6 +232,7 @@ GameState.prototype = {
 		});
 		
 		manager.peas.map(function(pea){
+			pea.update();
 			manager.campers.map(function(camper){
 				if(game.physics.arcade.overlap(pea.sprite, camper.sprite)) {
 					pea.props.die = true;
