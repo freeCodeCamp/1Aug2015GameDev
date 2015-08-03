@@ -18,7 +18,10 @@ function GameState() {
 		clouds: [],
 		suns: [],
 		spawn_timer: 0,
+		money: 100,
+		gui: null,
 		cursor: null,
+		gui: null,
 		setup: function(offsets) {
 			this.offsets = offsets;
 
@@ -56,6 +59,7 @@ function GameState() {
 				if(this.plants[i].props.row == row) {
 					if(closest == null || this.plants[i].sprite.x > closest.sprite.x) {
 						closest = this.plants[i];
+						//console.log(closest);
 					}
 				}
 			}
@@ -125,6 +129,23 @@ function GameState() {
 				(64 + this.offsets.margin_x) * column + this.offsets.world_x - this.offsets.spot_x,
 				(64 + this.offsets.margin_y) * row + this.offsets.world_y - this.offsets.spot_y
 			));
+		},
+		cleanup: function() {
+			
+			var objectArrays = ['plants', 'campers', 'peas', 'suns'];
+			
+			for(var i = 0; i < objectArrays.length; i++) {
+				
+				var objectArray = this[objectArrays[i]];
+				
+				var ii = 0; while(ii < objectArray.length) {
+					if(objectArray[ii].props.die) {
+						objectArray[ii].sprite.destroy();
+						objectArray.splice(ii, 1);
+					} ii++;
+				}
+			}
+			
 		}
 	};
 
@@ -156,100 +177,57 @@ GameState.prototype = {
 			spot_y: 0
 		});
 		
-		this.manager.addPlant(0, 0, 'basic');
-		this.manager.addPlant(0, 1, 'basic');
-		this.manager.addPlant(0, 2, 'basic');
-		this.manager.addPlant(0, 3, 'sunflower');
-		this.manager.addPlant(1, 3, 'nut');
-		this.manager.addPlant(0, 4, 'sunflower');
-		this.manager.addPlant(1, 4, 'nut');
-		this.manager.addSun(150,150);
+		for(var i = 0; i < this.manager.height; i++) {
+			this.manager.addPlant(0, i, 'basic');
+			this.manager.addPlant(1, i, 'sunflower');
+			this.manager.addPlant(2, i, 'nut');
+		}
 		
-		game.add.text(0, 0, 'Controls - Arrow keys to move cursor', {
-			'font': '24px Arial',
-			'fillStyle': 'black'
-		});
+		this.manager.gui = new Gui(this);
+		
+		var manager = this.manager;
+		window.setTimeout(function(){
+			manager.gui.sunText.text = manager.money.toString();
+		}, 100);
 	},
 	update: function() {
+		var manager = this.manager;
 		
 		// spawn a new camper every 2 seconds if theirs less than 10 in the game
-		var spawn_timer_difference = game.time.now - this.manager.spawn_timer;
-		
-		if(this.manager.campers.length < 1 && spawn_timer_difference >= 2000) {
-			var row = Math.floor(Math.random() * (this.manager.height - 1));
-			this.manager.addCamper(row, 'basic');
-			this.manager.spawn_timer = game.time.now;
-		}
-		
-		// we use while loops below due to the fact that we're calling splice
-		// inside of them, using a while loop forces the length to be re-indexed
-
-		// update the plants
-		var i = 0; while(i < this.manager.plants.length) {
-		
-			this.manager.plants[i].update();
-			
-			i++;
+		var spawn_timer_difference = game.time.now - manager.spawn_timer;
+		if(manager.campers.length < 10 && spawn_timer_difference >= 2000) {
+			var row = Math.floor(Math.random() * (manager.height - 1));
+			manager.addCamper(row, 'basic');
+			manager.spawn_timer = game.time.now;
 		}
 
-		// update the campers
-		var i = 0; while(i < this.manager.campers.length) {
-			var camper = this.manager.campers[i];
-			
-			camper.update();
-			
-			if(camper.props.die) {
-				camper.sprite.destroy();
-				this.manager.campers.splice(i, 1);
+		manager.plants.map(function(plant){ plant.update(); });
+		manager.clouds.map(function(cloud){ cloud.update(); });
+		manager.suns.map(function(sun){ sun.update(); });
+
+		manager.campers.map(function(camper_a){
+			camper_a.update();
+			if(!camper_a.dying) {
+				manager.campers.map(function(camper_b){
+					if(!camper_b.dying) {
+						game.physics.arcade.collide(camper_a.sprite, camper_b.sprite);
+					}
+				});
 			}
-			
-			// this makes it so campers don't overlap
-			for(var c = 0; c < this.manager.campers.length; c++) {
-				game.physics.arcade.collide(camper.sprite, this.manager.campers[c].sprite);
-			}
-			
-			i++;
-		}
+		});
 		
-		// clean up any peas that have died
-		var i = 0; while(i < this.manager.peas.length) {
-			var pea = this.manager.peas[i];
-			
-			if(pea.props.die) {
-				pea.sprite.destroy();
-				this.manager.peas.splice(i, 1);
-			}
-			
-			i++;
-		}
-		
-		
-		// check collisions between peas and campers
-		var i = 0; while(i < this.manager.peas.length) {
-			var pea = this.manager.peas[i];
-			
-			for(var c = 0; c < this.manager.campers.length; c++) {
-				var camper = this.manager.campers[c];
-				
+		manager.peas.map(function(pea){
+			manager.campers.map(function(camper){
 				if(game.physics.arcade.overlap(pea.sprite, camper.sprite)) {
 					pea.props.die = true;
 					camper.hit(pea.props.damage);
 				}
-			}
-			
-			i++;
-		}
+			});
+		});
 		
-		// Update the clouds
-		for (var i = 0; i < this.manager.clouds.length; i++) {
-			this.manager.clouds[i].update();
-		}
+		manager.cursor.update();
 		
-		for( var i=0; i<this.manager.suns.length; i++) {
-			this.manager.suns[i].update();
-		}
-		
-		this.manager.cursor.update();
+		manager.cleanup();
 	},
 	render: function() {
 		//for(var i = 0; i < this.manager.campers.length; i++) game.debug.body(this.manager.campers[i].sprite);

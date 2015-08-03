@@ -1,3 +1,7 @@
+function Peashooter() {
+    Character.apply(this, arguments);
+}
+
 Peashooter.prototype.init = function (){
 	this.sprite.animations.add('idle', ['peashooter_3', 'peashooter_0'], 2, true, false);
 	this.sprite.animations.add('shoot', ['peashooter_0', 'peashooter_1', 'peashooter_2'], 2, true, false);
@@ -9,7 +13,7 @@ Peashooter.prototype.init = function (){
 Peashooter.prototype.update = function() {
 
 	var time_since = game.time.now - this.props.cooldown_timer;
-
+	
 	if(this.manager.campersInRow(this.props.row) > 0) {
 
 		var currentAnim = this.sprite.animations.currentAnim;

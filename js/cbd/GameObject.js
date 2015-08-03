@@ -1,11 +1,20 @@
 function GameObject (name, tag, layer, row, column, components) {
+    
     this.name = name;
     this.tag = tag;
+    
+    this.props = new Props({
+		column: column,
+		row: row,
+		cooldown: 1000,
+		damage: 0,
+		speed: 100,
+		health: 2
+	});
     this.layer = layer;
-    this.row = row;
-    this.column = column;
     var attachedComponents = components;
 }
+
 
 GameObject.prototype.getColumnAndRow = function () {
     return [this.column, this.row];
@@ -48,6 +57,33 @@ GameObject.prototype.compareLayer = function (layer) {
 
 GameObject.prototype.update = function () {
     for (var i = 0; i < this.attachedComponents[i]; i++) {
-        attachedComponents[i].update();
+        if (this.attachedComponents.update) {
+            this.attachedComponents[i].update();
+        }
     }
+}
+
+GameObject.prototype.render = function () {
+    for (var i = 0; i < this.attachedComponents[i]; i++) {
+        if (this.attachedComponents.render) {
+            this.attachedComponents[i].render();
+        }
+    }
+}
+
+function loadScript(url, callback)
+{
+    // Adding the script tag to the head as suggested before
+    var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = url;
+
+    // Then bind the event to the callback function.
+    // There are several events for cross browser compatibility.
+    script.onreadystatechange = callback;
+    script.onload = callback;
+
+    // Fire the loading
+    head.appendChild(script);
 }
