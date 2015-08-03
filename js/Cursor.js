@@ -34,6 +34,9 @@ Cursor.prototype.update = function() {
     //https://www.youtube.com/watch?v=dQw4w9WgXcQ
     // ^ Best song ever ^
 
+    this.sprite.visible = 
+        game.input.mousePointer.leftButton.isDown && this.manager.gui.plant_selected;
+
     if(this.manager.getPlantAt(this.props.column, this.props.row) != null) {
         this.sprite.animations.play('red', 2, true);
     }

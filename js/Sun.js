@@ -6,13 +6,11 @@ function Sun(manager, sprite_x, sprite_y) {
 	this.sprite.height = 64;
 	
 	this.props = new Props({
-	    speed: 80,
+	    speed: 500,
 	    cooldown: 1000
 	});
 	
 	this.collecting = false;
-	
-	this.props.cooldown_timer = game.time.now;
 	
 	game.physics.arcade.enable(this.sprite);
 	this.sprite.body.acceleration = new Phaser.Point(0, 150);
@@ -45,20 +43,27 @@ Sun.prototype.update = function() {
         if(mouseButton.isDown && mouseButton.duration < 50) {
             if(this.sprite.x<mouse_x && this.sprite.x+this.sprite.width>mouse_x && this.sprite.y<mouse_y && this.sprite.y+this.sprite.height>mouse_y) {
                 this.collecting = true;
-                this.manager.money += 10;
+                this.manager.money++;
                 this.manager.gui.sunText.text = this.manager.money.toString();
             }
         }
     }
     else {
-        this.props.speed += 5;
-        var len = Math.sqrt(this.sprite.x*this.sprite.x+this.sprite.y*this.sprite.y);
-        this.sprite.body.velocity.x = this.props.speed*(-this.sprite.x) / len + 100;
-        this.sprite.body.velocity.y = this.props.speed*(-this.sprite.y) / len + 100;
-        if(len<100)
+        
+        var len = this.sprite.position.distance(this.manager.gui.sun.position);
+        
+        game.physics.arcade.accelerateToXY(
+            this.sprite, 
+            this.manager.gui.sun.x, 
+            this.manager.gui.sun.y, 
+            this.props.speed, 999, 999
+        );
+        
+        if(len < 100)
             this.sprite.alpha -= 0.05;
-        if(this.sprite.alpha<=0) {
-            this.props.dead = true;
-        }
+        
+        if(len < 10)
+            this.props.die = true;
+        
     }
 }

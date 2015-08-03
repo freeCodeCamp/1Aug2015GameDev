@@ -18,7 +18,7 @@ function GameState() {
 		clouds: [],
 		suns: [],
 		spawn_timer: 0,
-		money: 100,
+		money: 0,
 		gui: null,
 		cursor: null,
 		gui: null,
@@ -88,7 +88,7 @@ function GameState() {
 				var plantClass = Peashooter; // default plant
 				
 				switch (type) {
-					case 'basic': plantClass = Peashooter; break;
+					case 'peashooter': plantClass = Peashooter; break;
 					case 'sunflower': plantClass = Sunflower; break;
 					case 'nut': plantClass = Nut; break;
 				}
@@ -103,6 +103,19 @@ function GameState() {
 			else {
 				return false;
 			}
+		},
+		addPlantAtMouse: function(type) {
+			var mouse_x = game.input.mousePointer.x - this.offsets.world_x, 
+        		mouse_y = game.input.mousePointer.y - this.offsets.world_y;
+    
+		    var column = Math.floor(mouse_x / (64 + this.offsets.margin_x));
+		    var row    = Math.floor(mouse_y / (64 + this.offsets.margin_y));
+		    
+		    if(column > -1 && column < this.width && row > -1 && row < this.height) {
+		    	return this.addPlant(column, row, type);
+		    }
+		    
+		    return false;
 		},
 		addCamper: function(row, type) {
 			this.campers.push(new Zomper(
@@ -156,6 +169,7 @@ GameState.prototype = {
 		game.load.image('background', 'assets/textures/background.png');
 		game.load.image('spot', 'assets/textures/spot.png');
 		game.load.image('cloud', 'assets/textures/cloud.png');
+		game.load.image('gui', 'assets/textures/gui.png');
 		game.load.atlasJSONHash('cursors', 'assets/textures/cursor.png', 'assets/textures/cursor.json');
 		game.load.atlasJSONHash('zombie', 'assets/textures/zombie.png', 'assets/textures/zombie.json');
 		game.load.atlasJSONHash('plants', 'assets/textures/plants.png', 'assets/textures/plants.json');
@@ -177,11 +191,13 @@ GameState.prototype = {
 			spot_y: 0
 		});
 		
-		for(var i = 0; i < this.manager.height; i++) {
-			this.manager.addPlant(0, i, 'basic');
-			this.manager.addPlant(1, i, 'sunflower');
-			this.manager.addPlant(2, i, 'nut');
-		}
+		/*for(var i = 0; i < this.manager.height; i++) {
+			this.manager.addPlant(0, i, 'peashooter');
+			this.manager.addPlant(1, i, 'peashooter');
+			this.manager.addPlant(2, i, 'peashooter');
+			this.manager.addPlant(3, i, 'nut');
+			this.manager.addPlant(4, i, 'nut');
+		}*/
 		
 		this.manager.gui = new Gui(this);
 		
@@ -195,8 +211,8 @@ GameState.prototype = {
 		
 		// spawn a new camper every 2 seconds if theirs less than 10 in the game
 		var spawn_timer_difference = game.time.now - manager.spawn_timer;
-		if(manager.campers.length < 10 && spawn_timer_difference >= 2000) {
-			var row = Math.floor(Math.random() * (manager.height - 1));
+		if(manager.campers.length < 10 && spawn_timer_difference >= 100) {
+			var row = Math.floor(Math.random() * manager.height);
 			manager.addCamper(row, 'basic');
 			manager.spawn_timer = game.time.now;
 		}
